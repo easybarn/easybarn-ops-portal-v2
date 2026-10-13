@@ -29,7 +29,7 @@ export default async function TakealotPage({ searchParams }) {
 
   return (
     <div>
-      <PageHeader title="Takealot lead-time orders" sub="New sale → PO to Panel & Pane → add to a Takealot shipment → print pack and deliver to the DC"
+      <PageHeader title="Takealot lead-time orders" sub="New sale → PO to Panel & Pane → print pack and deliver to the Takealot DC"
         actions={<>
           <RefreshButton />
           <Link href="/takealot/shipments" className={btnClass()}><Package size={14} /> Shipments</Link>

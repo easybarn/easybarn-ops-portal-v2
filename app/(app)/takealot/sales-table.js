@@ -25,9 +25,9 @@ export default function SalesTable({ sales, tab, isAdmin }) {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
 
-  const selectable = (s) => !s.po && (s.tab === "new" || s.tab === "shipment");
+  const selectable = (s) => !s.po && s.tab !== "cancelled";
   const pickable = sales.filter(selectable);
-  const canSelect = (tab === "new" || tab === "shipment" || tab === "search") && pickable.length > 0;
+  const canSelect = tab !== "cancelled" && pickable.length > 0;
   const allOn = canSelect && pickable.every((s) => sel.has(s.key));
   const toggle = (k) => setSel((x) => { const n = new Set(x); n.has(k) ? n.delete(k) : n.add(k); return n; });
   const unmapped = sales.filter((s) => s.sku && !s.product).length;
@@ -98,13 +98,12 @@ export default function SalesTable({ sales, tab, isAdmin }) {
               </tbody>
             </table>
           </div>
-        ) : <Empty>{{ new: "No new Takealot sales waiting for a PO.", po: "Nothing waiting to go into a shipment.", shipment: "No sales in open shipments.", done: "No delivered sales in this period.", cancelled: "No cancelled sales in this period.", search: "No matches." }[tab]}</Empty>}
+        ) : <Empty>{{ new: "No new Takealot sales waiting for a PO.", po: "Nothing waiting to be delivered to Takealot.", atdc: "Nothing at the Takealot DC right now.", done: "No delivered sales in this period.", cancelled: "No cancelled sales in this period.", search: "No matches." }[tab]}</Empty>}
         <div className="px-3 h-9 flex items-center gap-3 text-[11px] text-faint border-t border-line">
           <span><span className="num">{sales.length}</span> sales</span>
           {unmapped ? <span className="text-bad">{unmapped} with unmapped SKUs</span> : null}
           {tab === "new" ? <span>Tick sales and raise POs on Panel &amp; Pane.</span> : null}
-          {tab === "po" ? <span>Next: add these to a shipment in the Takealot seller portal.</span> : null}
-          {tab === "shipment" ? <span>Open the shipment to print the shipping note and labels.</span> : null}
+          {tab === "po" ? <span>Next: confirm the shipment in the seller portal, then open it here to print the pack.</span> : null}
         </div>
       </div>
     </>
