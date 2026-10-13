@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+/* Easy Barn Ops v2 — dense console tokens (light + dark) */
+:root {
+  --bg: #F4F5F7;
+  --panel: #FFFFFF;
+  --sunk: #EEF0F3;
+  --hover: #F6F7F9;
+  --line: #E1E4E8;
+  --line-strong: #CDD2D8;
+  --ink: #16191D;
+  --muted: #646C76;
+  --faint: #8D949C;
+  --accent: #D81B60;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #FCE4EC;
+  --side: #15171B;
+  --side-ink: #C9CDD3;
+  --side-muted: #7C838C;
+  --side-hover: #22252B;
+  --ok: #1E7A46;   --ok-soft: #E3F4EA;
+  --warn: #9A5B00; --warn-soft: #FDF1DC;
+  --bad: #B42318;  --bad-soft: #FDE7E5;
+  --info: #1F5FA8; --info-soft: #E5EEF9;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0E1013;
+    --panel: #15181C;
+    --sunk: #1B1F24;
+    --hover: #1C2026;
+    --line: #262B32;
+    --line-strong: #343A42;
+    --ink: #E6E9ED;
+    --muted: #9AA2AC;
+    --faint: #6E7680;
+    --accent: #F0508A;
+    --accent-ink: #14060B;
+    --accent-soft: #3A1424;
+    --side: #0A0B0D;
+    --side-ink: #C9CDD3;
+    --side-muted: #6E7680;
+    --side-hover: #191C21;
+    --ok: #5CC489;   --ok-soft: #12291C;
+    --warn: #E5A74A; --warn-soft: #2E2311;
+    --bad: #F2867C;  --bad-soft: #351816;
+    --info: #79A9E6; --info-soft: #14243A;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-sunk: var(--sunk);
+  --color-hover: var(--hover);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-side: var(--side);
+  --color-side-ink: var(--side-ink);
+  --color-side-muted: var(--side-muted);
+  --color-side-hover: var(--side-hover);
+  --color-ok: var(--ok);     --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn); --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);   --color-bad-soft: var(--bad-soft);
+  --color-info: var(--info); --color-info-soft: var(--info-soft);
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono-jb), ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+html { color-scheme: light dark; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* compact form controls */
+.input {
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  color: var(--ink);
+  font-size: 13px;
+}
+textarea.input { height: auto; padding: 6px 8px; }
+.input:disabled { background: var(--sunk); color: var(--muted); }
+.input:focus-visible, button:focus-visible, a:focus-visible, select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* dense data table */
+.tbl { width: 100%; border-collapse: separate; border-spacing: 0; }
+.tbl th {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--sunk);
+  text-align: left; font-weight: 600; font-size: 11px;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--muted);
+  padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+.tbl td { padding: 5px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.tbl tbody tr:hover td { background: var(--hover); }
+.tbl .r { text-align: right; }
+
+/* printable pages: always black on white */
+.print-page { background: #fff; color: #111; min-height: 100vh; padding: 20px 24px; color-scheme: light; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.print-page .ptbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+.print-page .ptbl th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: #555; border-bottom: 1.5px solid #111; padding: 4px 6px; }
+.print-page .ptbl td { border-bottom: 1px solid #ddd; padding: 5px 6px; vertical-align: top; }
+.print-page .box { display: inline-block; width: 14px; height: 14px; border: 1.5px solid #111; border-radius: 2px; }
+@media print {
+  .no-print { display: none !important; }
+  .print-page { padding: 0; }
+  .ptbl tr { break-inside: avoid; }
+  @page { size: A4; margin: 12mm; }
+}
