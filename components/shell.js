@@ -6,11 +6,11 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Package, PackagePlus, FileSpreadsheet, CircleAlert, Users, LogOut, Menu,
-  ShoppingBag, Truck, Printer, Store, ClipboardList, FileText, MessageCircle, ExternalLink,
+  ShoppingBag, Truck, Printer, Store, Boxes, ClipboardList, FileText, MessageCircle, ExternalLink,
 } from "lucide-react";
 import { cx } from "./ui";
 
-// Old portal keeps Takealot / Leroy Merlin / WhatsApp until they are rebuilt here
+// Old portal keeps Leroy Merlin / WhatsApp until they are rebuilt here
 const LEGACY = process.env.NEXT_PUBLIC_LEGACY_URL || "http://localhost:3000";
 
 function Item({ href, icon: Icon, label, badge, exact, external, pathname, onNav }) {
@@ -68,6 +68,10 @@ export default function Shell({ profile, isAdmin, counts = {}, children }) {
           <Item href="/picking-slips" icon={ClipboardList} label="Picking slips" pathname={pathname} onNav={close} />
           <Item href="/shipping" icon={Printer} label="Print queue" pathname={pathname} onNav={close} />
         </Section>
+        <Section label="Takealot">
+          <Item href="/takealot" icon={Store} label="Lead-time orders" exact pathname={pathname} onNav={close} />
+          <Item href="/takealot/shipments" icon={Boxes} label="Shipments" pathname={pathname} onNav={close} />
+        </Section>
         <Section label="Catalogue">
           <Item href="/products" icon={Package} label="Products" exact pathname={pathname} onNav={close} />
           {isAdmin ? <Item href="/products/unmapped" icon={CircleAlert} label="Unmapped SKUs" badge={counts.unmapped} pathname={pathname} onNav={close} /> : null}
@@ -80,7 +84,6 @@ export default function Shell({ profile, isAdmin, counts = {}, children }) {
           </Section>
         ) : null}
         <Section label="Old portal">
-          <Item external href={`${LEGACY}/dashboard/leadtime`} icon={Store} label="Takealot" />
           <Item external href={`${LEGACY}/dashboard/leroymerlin/orders`} icon={Truck} label="Leroy Merlin" />
           <Item external href={`${LEGACY}/dashboard/whatsapp`} icon={MessageCircle} label="WhatsApp" />
         </Section>

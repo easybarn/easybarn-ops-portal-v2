@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FileText, Download, Mail, Plus, Trash2, X } from "lucide-react";
 import { PageHeader, Panel, Button, Badge, Notice, Field, btnClass, cx } from "@/components/ui";
-import { PO_TONE } from "@/lib/po-ui";
+import { PO_TONE, sourceHref } from "@/lib/po-ui";
 import { zar, shortDate, ago, VAT } from "@/lib/format";
 
 const blank = () => ({ warehouse_code: "", description: "", quantity: 1, unit_cost_excl: "", free_issue: false, line_notes: "" });
@@ -81,7 +81,7 @@ export default function PoEditor({ po, isAdmin, buyer, supplier, email }) {
       <PageHeader
         crumbs={[{ label: "Purchase orders", href: "/purchase-orders" }, { label: po.po_number }]}
         title={<span className="flex items-center gap-2"><span className="num">{po.po_number}</span><Badge tone={PO_TONE[po.status]}>{po.status}</Badge></span>}
-        sub={<>Created {shortDate(po.created_at)}{po.sent_at ? ` · sent ${shortDate(po.sent_at)}` : ""}{po.source_order_ref ? <> · for <Link className="num hover:text-accent" href={`/orders/${po.source_order_id}`}>{po.source_order_ref}</Link></> : null}</>}
+        sub={<>Created {shortDate(po.created_at)}{po.sent_at ? ` · sent ${shortDate(po.sent_at)}` : ""}{po.source_order_ref ? <> · for {sourceHref(po) ? <Link className="num hover:text-accent" href={sourceHref(po)}>{po.source_order_ref}</Link> : po.source_order_ref}</> : null}</>}
         actions={
           <>
             <a className={btnClass()} href={`/api/purchase-orders/${po.id}/pdf`} target="_blank" rel="noreferrer"><FileText size={14} /> View PDF</a>

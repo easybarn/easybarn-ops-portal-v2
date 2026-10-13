@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, X } from "lucide-react";
 import { Badge, Button, Empty, Field, Notice, cx } from "@/components/ui";
-import { PO_TONE } from "@/lib/po-ui";
+import { PO_TONE, sourceHref } from "@/lib/po-ui";
 import { zar, shortDate } from "@/lib/format";
 
 function BatchEmail({ pos, email, onClose, onDone }) {
@@ -86,7 +86,7 @@ export default function PoTable({ pos, email, queueView }) {
                       <td onClick={(e) => e.stopPropagation()}>{can ? <input type="checkbox" aria-label={`Select ${p.po_number}`} checked={sel.has(p.id)} onChange={() => toggle(p.id)} /> : null}</td>
                       <td className="whitespace-nowrap"><Link href={`/purchase-orders/${p.id}`} className="num font-semibold hover:text-accent" onClick={(e) => e.stopPropagation()}>{p.po_number}</Link></td>
                       <td className="whitespace-nowrap"><Badge tone={PO_TONE[p.status]}>{p.status}</Badge>{p.stale ? <Badge tone="bad" className="ml-1">old draft</Badge> : null}{p.status !== "cancelled" && !p.incl && !p.free ? <Badge tone="warn" className="ml-1">R0</Badge> : null}</td>
-                      <td className="whitespace-nowrap">{p.source_marketplace === "shopify" && p.source_order_id ? <Link href={`/orders/${p.source_order_id}`} className="num hover:text-accent" onClick={(e) => e.stopPropagation()}>{p.source_order_ref || p.source_order_id}</Link> : <span className="num text-muted">{p.source_order_ref || "—"}</span>} <span className="text-[11px] text-faint">{p.source_marketplace}</span></td>
+                      <td className="whitespace-nowrap">{sourceHref(p) ? <Link href={sourceHref(p)} className="num hover:text-accent" onClick={(e) => e.stopPropagation()}>{p.source_order_ref || p.source_order_id}</Link> : <span className="num text-muted">{p.source_order_ref || "—"}</span>} <span className="text-[11px] text-faint">{p.source_marketplace}</span></td>
                       <td className="r num">{p.lineCount}{p.missing ? <span className="text-warn"> · {p.missing} TBC</span> : null}</td>
                       <td className="r num whitespace-nowrap">{zar(p.excl)}</td>
                       <td className="r num font-semibold whitespace-nowrap">{zar(p.incl)}</td>
