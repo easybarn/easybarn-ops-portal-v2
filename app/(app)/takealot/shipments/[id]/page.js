@@ -20,7 +20,7 @@ export default async function ShipmentPage({ params }) {
   const units = s.items.reduce((n, i) => n + i.sending, 0);
   return (
     <div>
-      <PageHeader crumbs={[{ label: "Takealot", href: "/takealot" }, { label: "Shipments", href: "/takealot/shipments" }, { label: s.reference || String(s.id) }]}
+      <PageHeader crumbs={[{ label: "Takealot shipments", href: "/takealot/shipments" }, { label: s.reference || String(s.id) }]}
         title={<span className="flex items-center gap-2"><span className="num">{s.reference}</span><DcBadge dc={s.dc} /><Badge tone={s.state === "shipped" ? "ok" : "warn"}>{s.state}</Badge></span>}
         sub={`Takealot PO ${s.poNumber || "—"} · due ${s.dueDate ? shortDate(s.dueDate) : "—"} · ${s.items.length} line${s.items.length === 1 ? "" : "s"} · ${units} unit${units === 1 ? "" : "s"}${s.tracking ? ` · tracking ${s.tracking}` : ""}`}
         actions={<RefreshButton />} />

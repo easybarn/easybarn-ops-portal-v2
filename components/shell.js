@@ -69,8 +69,8 @@ export default function Shell({ profile, isAdmin, counts = {}, children }) {
           <Item href="/shipping" icon={Printer} label="Print queue" pathname={pathname} onNav={close} />
         </Section>
         <Section label="Takealot">
-          <Item href="/takealot" icon={Store} label="Lead-time orders" exact pathname={pathname} onNav={close} />
           <Item href="/takealot/shipments" icon={Boxes} label="Shipments" pathname={pathname} onNav={close} />
+          <Item href="/takealot" icon={Store} label="Lead-time sales" exact pathname={pathname} onNav={close} />
         </Section>
         <Section label="Catalogue">
           <Item href="/products" icon={Package} label="Products" exact pathname={pathname} onNav={close} />

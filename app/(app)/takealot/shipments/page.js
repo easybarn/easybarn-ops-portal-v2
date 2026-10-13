@@ -5,11 +5,12 @@ import { listShipments } from "@/lib/takealot";
 import { PageHeader, Notice, Empty, Badge, cx, btnClass } from "@/components/ui";
 import RefreshButton from "@/components/refresh-button";
 import { DcBadge } from "../sales-table";
+import TakealotProcess from "../process-help";
 import { shortDate } from "@/lib/format";
 
 export const metadata = { title: "Takealot shipments" };
-const FILTERS = { open: ["Open", false], shipped: ["Shipped", true], all: ["All", null] };
-const STATE_TONE = { shipped: "ok", cancelled: "neutral", archived: "neutral", draft: "warn" };
+const FILTERS = { open: ["Drafts & confirmed", false], shipped: ["Shipped", true], all: ["All", null] };
+const STATE_TONE = { shipped: "ok", cancelled: "neutral", archived: "neutral", draft: "warn", confirmed: "info" };
 
 export default async function ShipmentsPage({ searchParams }) {
   await requireUser();
@@ -23,9 +24,9 @@ export default async function ShipmentsPage({ searchParams }) {
 
   return (
     <div>
-      <PageHeader crumbs={[{ label: "Takealot", href: "/takealot" }, { label: "Shipments" }]} title="Takealot shipments"
-        sub="Shipments are created in the Takealot seller portal. Open one here to print the shipping note and labels."
-        actions={<><RefreshButton /><a href="https://seller.takealot.com/shipments" target="_blank" rel="noreferrer" className={btnClass()}>Seller portal <ExternalLink size={12} /></a></>} />
+      <PageHeader crumbs={[{ label: "Takealot", href: "/takealot/shipments" }, { label: "Shipments" }]} title="Takealot shipments"
+        sub="Booked in the Takealot seller portal (draft → confirmed → shipped). Open one to print the shipping note and labels."
+        actions={<><TakealotProcess /><RefreshButton /><Link href="/takealot" className={btnClass()}>Sales</Link><a href="https://seller.takealot.com/shipments" target="_blank" rel="noreferrer" className={btnClass("primary")}>Manage in Takealot <ExternalLink size={12} /></a></>} />
       <div className="flex gap-1 bg-sunk p-0.5 rounded-md w-fit mb-3">
         {Object.entries(FILTERS).map(([k, [l]]) => (
           <Link key={k} href={`/takealot/shipments?f=${k}`} className={cx("h-[28px] px-3 rounded-[5px] flex items-center text-[13px]", f === k ? "bg-panel shadow-sm font-semibold" : "text-muted hover:text-ink")}>{l}</Link>
