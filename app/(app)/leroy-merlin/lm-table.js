@@ -96,11 +96,12 @@ export default function LmTable({ orders, isAdmin, tab }) {
               </tbody>
             </table>
           </div>
-        ) : <Empty>{{ action: "Nothing waiting. All Leroy Merlin orders are shipped.", shipped: "No shipped orders in this period.", done: "No completed orders in this period.", cancelled: "No cancelled orders in this period.", search: "No matches." }[tab]}</Empty>}
+        ) : <Empty>{{ action: "No new orders waiting to be accepted.", accepted: "Nothing accepted and waiting to ship.", shipped: "No shipped orders in this period.", done: "No completed orders in this period.", cancelled: "No cancelled orders in this period.", search: "No matches." }[tab]}</Empty>}
         <div className="px-3 h-9 flex items-center gap-3 text-[11px] text-faint border-t border-line">
           <span><span className="num">{orders.length}</span> order{orders.length === 1 ? "" : "s"}</span>
           {unmapped ? <span className="text-bad">{unmapped} with unmapped SKUs</span> : null}
-          {tab === "action" ? <span>Accept new orders, then Ship once they show Awaiting shipment.</span> : null}
+          {tab === "action" ? <span>Accept new orders; they move to Accepted · awaiting shipment.</span> : null}
+          {tab === "accepted" ? <span>Ship before the ship-by date. Tracking goes back to Leroy Merlin automatically.</span> : null}
         </div>
       </div>
       {ship ? <ShipDialog order={ship} marketplace="leroymerlin" onClose={() => { setShip(null); router.refresh(); }} /> : null}

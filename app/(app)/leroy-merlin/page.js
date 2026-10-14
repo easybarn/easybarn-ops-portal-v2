@@ -21,7 +21,7 @@ export default async function LeroyMerlinPage({ searchParams }) {
 
   const tabOf = (o) => Object.keys(LM_TABS).find((k) => LM_TABS[k].states.includes(o.state)) || "other";
   const counts = Object.fromEntries(Object.keys(LM_TABS).map((k) => [k, orders.filter((o) => tabOf(o) === k).length]));
-  const tab = LM_TABS[sp.tab] ? sp.tab : "action";
+  const tab = LM_TABS[sp.tab] ? sp.tab : counts.action || !counts.accepted ? "action" : "accepted";
   const match = (o) => [o.id, o.customer.name, o.status, o.address?.city, o.po?.po_number, ...o.items.flatMap((i) => [i.sku, i.title, i.product?.code])].some((v) => String(v || "").toLowerCase().includes(q));
   const rows = q ? orders.filter(match) : orders.filter((o) => tabOf(o) === tab);
   const qs = (o) => "/leroy-merlin?" + new URLSearchParams(Object.fromEntries(Object.entries({ tab, days: days === 90 ? null : days, q: sp.q, ...o }).filter(([, v]) => v))).toString();
@@ -38,8 +38,8 @@ export default async function LeroyMerlinPage({ searchParams }) {
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <div className="flex flex-wrap gap-1 bg-sunk p-0.5 rounded-md">
           {Object.entries(LM_TABS).map(([k, t]) => (
-            <Link key={k} href={qs({ tab: k, q: null })} className={cx("h-[28px] px-3 rounded-[5px] flex items-center gap-1.5 text-[13px]", !q && tab === k ? "bg-panel shadow-sm font-semibold" : "text-muted hover:text-ink")}>
-              {t.label}<span className={cx("num text-[11px] px-1.5 rounded", k === "action" && counts[k] ? "bg-accent text-accent-ink" : "bg-line text-muted")}>{counts[k]}</span>
+            <Link key={k} href={qs({ tab: k, q: null })} title={t.hint} className={cx("h-[28px] px-3 rounded-[5px] flex items-center gap-1.5 text-[13px]", !q && tab === k ? "bg-panel shadow-sm font-semibold" : "text-muted hover:text-ink")}>
+              {t.label}<span className={cx("num text-[11px] px-1.5 rounded", (k === "action" || k === "accepted") && counts[k] ? "bg-accent text-accent-ink" : "bg-line text-muted")}>{counts[k]}</span>
             </Link>
           ))}
         </div>

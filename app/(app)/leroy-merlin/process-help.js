@@ -3,18 +3,18 @@
 import ProcessDialog from "@/components/process-dialog";
 
 const STEPS = [
-  ["1 · Order comes in", "A customer orders on Leroy Merlin. It shows under Needs action as Pending acceptance.", "Needs action"],
-  ["2 · Accept it", "Click Accept on the order. Leroy Merlin takes a minute to move it to Awaiting shipment (refresh to see it). Ship-by dates turn red once overdue.", "Needs action → Accept"],
-  ["3 · Stock from Panel & Pane (if needed)", "Click Create PO on the order. The PO goes into the send queue; email it from Purchase orders → Send queue.", "Needs action · Purchase orders"],
-  ["4 · Ship", "Click Ship: check the parcels, get The Courier Guy rates and book. The tracking number is sent to Leroy Merlin and the order is marked shipped there automatically. Print the waybill and stickers from the same window.", "Needs action → Ship"],
-  ["5 · Delivered", "The order moves to Shipped, then Done once Leroy Merlin closes it.", "Shipped · Done"],
+  ["Need action", "A new Leroy Merlin order (Pending acceptance). Check it and click Accept. If the door has to come from Panel & Pane, click Create PO too; email POs from Purchase orders → Send queue.", "Need action → Accept"],
+  ["Accepted · awaiting shipment", "Leroy Merlin moves it here a minute or so after you accept (refresh). Click Ship: check the parcels, get The Courier Guy rates and book. The tracking number goes to Leroy Merlin and the order is marked shipped there. Print the waybill and stickers from the same window. Ship-by dates turn red when overdue.", "Accepted → Ship"],
+  ["Shipped", "Booked and marked shipped in Leroy Merlin. The courier delivers.", "Shipped"],
+  ["Done · received", "The customer has received it and Leroy Merlin closes the order.", "Done · received"],
+  ["Cancelled", "Rejected, cancelled or refunded orders.", "Cancelled"],
 ];
 
 export default function LmProcess() {
   return (
     <ProcessDialog
       title="Leroy Merlin order process"
-      flow="order → accept in LM → (PO) → ship → done"
+      flow="need action → accepted · awaiting shipment → shipped → done · received"
       intro="Leroy Merlin runs on Mirakl. Statuses come straight from Leroy Merlin."
       steps={STEPS}
       footer={<>If booking works but the tracking push fails, the window says so: add the waybill number in the LM portal by hand and click Mark as shipped there.</>}
