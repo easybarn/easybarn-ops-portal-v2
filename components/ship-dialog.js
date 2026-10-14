@@ -48,7 +48,15 @@ function nextWorkday() {
 const day = (s) => (s ? new Date(s).toLocaleDateString("en-ZA", { weekday: "short", day: "2-digit", month: "short" }) : "");
 const volKg = (p) => (Number(p.length) * Number(p.width) * Number(p.height)) / 5000;
 
-export default function ShipDialog({ order, onClose }) {
+// marketplace: "shopify" (default) fulfils the Shopify order; "leroymerlin" pushes tracking to LM and marks it shipped
+const API = {
+  shopify: { rates: "/api/courier/rates", book: "/api/courier/book" },
+  leroymerlin: { rates: "/api/leroymerlin/rates", book: "/api/leroymerlin/book" },
+};
+
+export default function ShipDialog({ order, onClose, marketplace = "shopify" }) {
+  const api = API[marketplace] || API.shopify;
+  const isLm = marketplace === "leroymerlin";
   const router = useRouter();
   const [step, setStep] = useState("parcels");
   const [parcels, setParcels] = useState(() => suggestParcels(order.items));
@@ -86,11 +94,11 @@ export default function ShipDialog({ order, onClose }) {
   }
 
   async function getRates() {
-    const d = await post("/api/courier/rates", { orderId: order.id, parcels, collectionDate: date });
+    const d = await post(api.rates, { orderId: order.id, parcels, collectionDate: date });
     if (d) { setRates(d.rates); setRate(d.rates[0] || null); setStep("rates"); }
   }
   async function book() {
-    const d = await post("/api/courier/book", { orderId: order.id, parcels, serviceLevelCode: rate.code, collectionDate: date, notifyCustomer: notify, allowRebook: rebook });
+    const d = await post(api.book, { orderId: order.id, parcels, serviceLevelCode: rate.code, collectionDate: date, notifyCustomer: notify, allowRebook: rebook });
     if (d) { setResult(d); setStep("done"); }
   }
 
@@ -180,7 +188,7 @@ export default function ShipDialog({ order, onClose }) {
                 <div><div className="text-faint">Parcels</div><div className="font-medium num">{parcels.length} · {billable.toFixed(1)} kg</div></div>
                 <div className="col-span-2"><div className="text-faint">Deliver to</div><div className="font-medium truncate">{[addr.address1, addr.city, addr.zip].filter(Boolean).join(", ")}</div></div>
               </div>
-              <label className="flex items-center gap-2 text-[12px]"><input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} /> Email the customer their tracking number (Shopify shipping confirmation)</label>
+              {isLm ? <div className="text-[12px] text-muted">After booking, the tracking number is sent to Leroy Merlin and the order is marked shipped there.</div> : <label className="flex items-center gap-2 text-[12px]"><input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} /> Email the customer their tracking number (Shopify shipping confirmation)</label>}
               <div className="flex justify-between gap-2">
                 <Button onClick={() => setStep("parcels")} disabled={busy}>Back</Button>
                 <Button variant="primary" onClick={book} disabled={!rate || busy}>{busy ? "Booking…" : rate ? `Book ${rate.name} · ${zar(rate.rate)}` : "Book"}</Button>
@@ -193,6 +201,8 @@ export default function ShipDialog({ order, onClose }) {
               <Notice tone="ok">
                 Booked. Waybill <span className="num font-semibold">{result.trackingReference}</span>
                 {result.fulfilled ? " · Shopify order marked fulfilled" : ""}
+                {result.trackingPushed ? " · tracking sent to Leroy Merlin" : ""}
+                {result.markedShipped ? " · marked shipped in LM" : ""}
                 {result.linked?.slips || result.linked?.pos ? ` · added to ${[result.linked.slips && "picking slip", result.linked.pos && "PO"].filter(Boolean).join(" and ")}` : ""}
               </Notice>
               {result.warnings?.map((w) => <Notice key={w} tone="warn">{w}</Notice>)}

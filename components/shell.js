@@ -10,19 +10,21 @@ import {
 } from "lucide-react";
 import { cx } from "./ui";
 
-// Old portal keeps Leroy Merlin / WhatsApp until they are rebuilt here
+// Old portal keeps WhatsApp until they are rebuilt here
 const LEGACY = process.env.NEXT_PUBLIC_LEGACY_URL || "http://localhost:3000";
 
-function Item({ href, icon: Icon, label, badge, exact, external, pathname, onNav }) {
+function Item({ href, icon: Icon, label, badge, exact, external, pathname, onNav, tint }) {
   const active = !external && (exact ? pathname === href : pathname === href || pathname.startsWith(href + "/"));
   const cls = cx(
-    "flex items-center gap-2.5 h-[30px] px-3 mx-2 rounded-[5px] text-[13px] transition-colors",
-    active ? "bg-side-hover text-white" : "text-side-ink hover:bg-side-hover hover:text-white",
+    cx("flex items-center gap-2.5 h-[30px] px-3 rounded-[5px] text-[13px] transition-colors", tint ? "mx-1.5" : "mx-2"),
+    tint
+      ? (active ? "bg-white text-[#15171B] font-semibold shadow-sm" : "text-[#2b3038] hover:bg-white/70")
+      : (active ? "bg-side-hover text-white" : "text-side-ink hover:bg-side-hover hover:text-white"),
     external && "text-side-muted"
   );
   const inner = (
     <>
-      <Icon size={15} strokeWidth={1.8} className={active ? "text-accent" : ""} />
+      <Icon size={15} strokeWidth={1.8} className={active ? (tint ? TINTS[tint].icon : "text-accent") : tint ? TINTS[tint].icon : ""} />
       <span className="flex-1 truncate">{label}</span>
       {external ? <ExternalLink size={12} /> : null}
       {badge ? <span className="num text-[10.5px] px-1.5 rounded bg-accent text-accent-ink font-semibold">{badge}</span> : null}
@@ -35,9 +37,16 @@ function Item({ href, icon: Icon, label, badge, exact, external, pathname, onNav
   );
 }
 
-const Section = ({ label, children }) => (
-  <div className="mt-4">
-    <div className="px-5 pb-1 text-[10px] font-semibold uppercase tracking-[.1em] text-side-muted">{label}</div>
+// Marketplace colour coding: Shopify very light pink, Takealot very light blue, Leroy Merlin very light green
+const TINTS = {
+  shopify: { bg: "bg-[#FBEAF2]", label: "text-[#a3245f]", icon: "text-[#b8306f]" },
+  takealot: { bg: "bg-[#E6F1FB]", label: "text-[#1d5d99]", icon: "text-[#2b74b8]" },
+  leroymerlin: { bg: "bg-[#E7F5E9]", label: "text-[#2c7a3a]", icon: "text-[#3a8f49]" },
+};
+
+const Section = ({ label, children, tint }) => (
+  <div className={cx("mt-4", tint && cx("mx-2 rounded-md py-1.5", TINTS[tint].bg))}>
+    <div className={cx("pb-1 text-[10px] font-semibold uppercase tracking-[.1em]", tint ? cx("px-[18px]", TINTS[tint].label) : "px-5 text-side-muted")}>{label}</div>
     {children}
   </div>
 );
@@ -62,15 +71,18 @@ export default function Shell({ profile, isAdmin, counts = {}, children }) {
         <div className="mt-3">
           <Item href="/dashboard" icon={LayoutDashboard} label="Overview" exact pathname={pathname} onNav={close} />
         </div>
-        <Section label="Easy Barn · Shopify">
-          <Item href="/orders" icon={ShoppingBag} label="Orders" badge={counts.toShip || null} pathname={pathname} onNav={close} />
-          <Item href="/purchase-orders" icon={FileText} label="Purchase orders" pathname={pathname} onNav={close} />
-          <Item href="/picking-slips" icon={ClipboardList} label="Picking slips" pathname={pathname} onNav={close} />
-          <Item href="/shipping" icon={Printer} label="Print queue" pathname={pathname} onNav={close} />
+        <Section label="Easy Barn · Shopify" tint="shopify">
+          <Item tint="shopify" href="/orders" icon={ShoppingBag} label="Orders" badge={counts.toShip || null} pathname={pathname} onNav={close} />
+          <Item tint="shopify" href="/purchase-orders" icon={FileText} label="Purchase orders" pathname={pathname} onNav={close} />
+          <Item tint="shopify" href="/picking-slips" icon={ClipboardList} label="Picking slips" pathname={pathname} onNav={close} />
+          <Item tint="shopify" href="/shipping" icon={Printer} label="Print queue" pathname={pathname} onNav={close} />
         </Section>
-        <Section label="Takealot">
-          <Item href="/takealot/shipments" icon={Boxes} label="Shipments" pathname={pathname} onNav={close} />
-          <Item href="/takealot" icon={Store} label="Lead-time sales" exact pathname={pathname} onNav={close} />
+        <Section label="Takealot" tint="takealot">
+          <Item tint="takealot" href="/takealot/shipments" icon={Boxes} label="Shipments" pathname={pathname} onNav={close} />
+          <Item tint="takealot" href="/takealot" icon={Store} label="Lead-time sales" exact pathname={pathname} onNav={close} />
+        </Section>
+        <Section label="Leroy Merlin" tint="leroymerlin">
+          <Item tint="leroymerlin" href="/leroy-merlin" icon={Truck} label="Orders" pathname={pathname} onNav={close} />
         </Section>
         <Section label="Catalogue">
           <Item href="/products" icon={Package} label="Products" exact pathname={pathname} onNav={close} />
@@ -84,7 +96,6 @@ export default function Shell({ profile, isAdmin, counts = {}, children }) {
           </Section>
         ) : null}
         <Section label="Old portal">
-          <Item external href={`${LEGACY}/dashboard/leroymerlin/orders`} icon={Truck} label="Leroy Merlin" />
           <Item external href={`${LEGACY}/dashboard/whatsapp`} icon={MessageCircle} label="WhatsApp" />
         </Section>
       </div>
