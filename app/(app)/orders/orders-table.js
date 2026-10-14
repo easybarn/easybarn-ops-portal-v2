@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Truck, FilePlus2, ClipboardList, Check } from "lucide-react";
+import { Truck, FilePlus2, ClipboardList, Check, Undo2 } from "lucide-react";
 import { Button, Empty, Notice, Badge, cx } from "@/components/ui";
 import ShipDialog from "@/components/ship-dialog";
 import { zar, ago } from "@/lib/format";
@@ -37,6 +37,21 @@ export default function OrdersTable({ orders, tab, openSlips = [], nextHref, fir
     setSel(new Set()); router.refresh();
   }
 
+  async function cancelPos() {
+    const chosen = orders.filter((o) => sel.has(o.key) && o.po);
+    const drafts = chosen.filter((o) => o.po.status === "draft");
+    const sent = chosen.filter((o) => o.po.status !== "draft");
+    if (!drafts.length) return setResult({ tone: "warn", text: `Only draft POs can be cancelled here. ${sent.map((o) => `${o.po.po_number} is ${o.po.status}`).join("; ")}. Open the PO to change it.` });
+    if (!window.confirm(`Cancel ${drafts.length} draft PO${drafts.length === 1 ? "" : "s"} (${drafts.map((o) => o.po.po_number).join(", ")})?\n\nThe order${drafts.length === 1 ? " goes" : "s go"} back to “1 · New” and won't get a new PO automatically. Raise one again from there when ready.`)) return;
+    setBusy(true); setResult(null);
+    const { ok, d } = await post("/api/purchase-orders/cancel", { ids: drafts.map((o) => o.po.id) });
+    setBusy(false);
+    if (!ok) return setResult({ tone: "bad", text: d.error || "Couldn't cancel the POs" });
+    const skipped = [...(d.skipped || []), ...sent.map((o) => `${o.po.po_number} (${o.po.status})`)];
+    setResult({ tone: skipped.length ? "warn" : "ok", text: `Cancelled ${d.cancelled.join(", ")}. Order${d.cancelled.length === 1 ? "" : "s"} moved back to “1 · New”.` + (skipped.length ? ` Not changed: ${skipped.join(", ")}.` : "") });
+    setSel(new Set()); router.refresh();
+  }
+
   async function toSlip() {
     setBusy(true); setResult(null);
     const { ok, d } = slipTarget === "new" ? await post("/api/slips", { orderKeys: [...sel] }) : await post(`/api/slips/${slipTarget}/add`, { orderKeys: [...sel] });
@@ -62,6 +77,8 @@ export default function OrdersTable({ orders, tab, openSlips = [], nextHref, fir
                 {openSlips.map((s) => <option key={s.id} value={s.id}>Add to {s.number} ({s.count} orders)</option>)}
               </select>
               <Button size="sm" variant="primary" onClick={toSlip} disabled={busy}><ClipboardList size={13} /> {busy ? "Working…" : slipTarget === "new" ? "Create picking slip" : "Add to slip"}</Button>
+              <span className="w-px h-5 bg-line-strong mx-1" />
+              <Button size="sm" variant="danger" onClick={cancelPos} disabled={busy}><Undo2 size={13} /> Cancel draft PO{sel.size === 1 ? "" : "s"} · back to New</Button>
             </>
           ) : null}
           <Button size="sm" variant="ghost" onClick={() => setSel(new Set())} disabled={busy}>Clear</Button>
@@ -108,6 +125,7 @@ export default function OrdersTable({ orders, tab, openSlips = [], nextHref, fir
                     <td className="align-top">
                       {o.po ? <div className="mb-0.5"><Badge tone="ok"><Check size={10} /> PO raised</Badge>{o.autoPo ? <Badge className="ml-1">auto</Badge> : null}</div> : null}
                       <Pipeline order={o} canCreate={tab === "new"} />
+                      {!o.po && o.cancelledPo ? <div className="mt-0.5 text-[11px] text-faint"><span className="line-through num">{o.cancelledPo.po_number}</span> cancelled</div> : null}
                       {o.slip?.picked ? <div className="mt-0.5"><Badge tone="ok"><Check size={10} /> picked</Badge></div> : null}
                     </td>
                     <td className="align-top"><PayBadge status={o.financial} /></td>
@@ -135,8 +153,8 @@ export default function OrdersTable({ orders, tab, openSlips = [], nextHref, fir
         <div className="px-3 h-9 flex items-center gap-3 text-[11px] text-faint border-t border-line">
           <span><span className="num">{orders.length}</span> orders</span>
           {unmapped ? <span className="text-bad">{unmapped} with unmapped SKUs</span> : null}
-          {tab === "new" ? <span>New paid orders get a PO automatically; older ones can be ticked and raised here.</span> : null}
-          {tab === "pick" ? <span>Tick orders and create a picking slip.</span> : null}
+          {tab === "new" ? <span>New paid orders get a PO automatically (not after a cancelled PO); others can be ticked and raised here.</span> : null}
+          {tab === "pick" ? <span>Tick orders and create a picking slip, or cancel their draft PO to send them back to New.</span> : null}
           <span className="ml-auto flex gap-3">
             {firstHref ? <Link href={firstHref} className="text-accent hover:underline">← Newest</Link> : null}
             {nextHref ? <Link href={nextHref} className="text-accent hover:underline">Older →</Link> : null}

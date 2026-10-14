@@ -5,7 +5,7 @@ import { HelpCircle, X } from "lucide-react";
 
 const STEPS = [
   ["1 · New", "Any new paid order gets a draft PO to Panel & Pane automatically when you open or refresh this page. It then shows ✓ PO raised with its PO number and moves to step 2. The yellow banner shows how many POs still need emailing, with a link to the send queue. Older orders without a PO: tick them here and click Raise POs."],
-  ["2 · PO raised", "Tick orders, then Create picking slip, or add them to a recent open slip."],
+  ["2 · PO raised", "Tick orders, then Create picking slip, or add them to a recent open slip. Raised a PO by mistake? Tick the order and click Cancel draft PO: it goes back to 1 · New and won't get a new PO automatically (POs already emailed are changed from the PO page)."],
   ["3 · On slip", "Open the slip and tick lines off as you pick. Ticking a P&P code ticks it on every order on the slip. Flag short or damaged stock, take an order off the slip, or print the slip (pick list, then a box per order with Packed by and Parcels lines)."],
   ["4 · Ready to ship", "Fully picked orders land here with a Ship button: get The Courier Guy rates, book, and the Shopify order is fulfilled with the tracking number."],
   ["Shipped", "Orders with tracking. Reprint waybills and stickers from the order page or the Print queue."],
